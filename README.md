@@ -29,6 +29,7 @@ MODEL_N_CTX: Maximum token limit for the LLM model
 MODEL_N_BATCH: Number of tokens in the prompt that are fed into the model at a time. Optimal value differs a lot depending on the model (8 works well for GPT4All, and 1024 is better for LlamaCpp)
 EMBEDDINGS_MODEL_NAME: SentenceTransformers embeddings model name (see https://www.sbert.net/docs/pretrained_models.html)
 TARGET_SOURCE_CHUNKS: The amount of chunks (sources) that will be used to answer a question
+IS_GPU_ENABLED: (True/False) Whether to use GPU or not
 ```
 
 Note: because of the way `langchain` loads the `SentenceTransformers` embeddings, the first time you run the script it will require internet connection to download the embeddings model itself.
@@ -135,6 +136,27 @@ To install a C++ compiler on Windows 10/11, follow these steps:
 When running a Mac with Intel hardware (not M1), you may run into _clang: error: the clang compiler does not support '-march=native'_ during pip install.
 
 If so set your archflags during pip install. eg: _ARCHFLAGS="-arch x86_64" pip3 install -r requirements.txt_
+
+## Using GPU acceleration
+
+You can use the included installer batch file to install the required dependencies for GPU acceleration, or:
+
+1. Install [NVidia CUDA 11.8](https://developer.nvidia.com/cuda-11-8-0-download-archive)
+2. Install `llama-cpp-python` package with cuBLAS enabled. Run the code below in the directory you want to build the package in.
+   - Powershell:
+
+   ```powershell
+   $Env:CMAKE_ARGS="-DLLAMA_CUBLAS=on"; $Env:FORCE_CMAKE=1; pip3 install llama-cpp-python --force-reinstall --upgrade --no-cache-dir
+   ```
+
+   - Bash:
+
+   ```bash
+   CMAKE_ARGS="-DLLAMA_CUBLAS=on" FORCE_CMAKE=1 pip3 install llama-cpp-python --force-reinstall --upgrade --no-cache-dir
+   ```
+
+3. Enable GPU acceleration in `.env` file by setting `IS_GPU_ENABLED` to `True`
+4. Run `ingest.py` and `privateGPT.py` as usual
 
 # Disclaimer
 This is a test project to validate the feasibility of a fully private solution for question answering using LLMs and Vector embeddings. It is not production ready, and it is not meant to be used in production. The models selection is not optimized for performance, but for privacy; but it is possible to use different models and vectorstores to improve performance.
